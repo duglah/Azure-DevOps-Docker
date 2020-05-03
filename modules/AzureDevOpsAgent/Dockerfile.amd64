@@ -1,5 +1,7 @@
 FROM microsoft/dotnet:2.1-sdk-stretch
  
+ARG VSTS_AGENT_VERSION=2.168.0
+
 # Install curl, wget and git
 RUN apt-get update && apt-get install -y \
 curl \
@@ -7,13 +9,15 @@ wget \
 git
  
 # Download compiles vsts-agent
-RUN curl https://vstsagentpackage.azureedge.net/agent/2.141.0/vsts-agent-linux-arm-2.141.0.tar.gz -o vsts-agent-linux-arm-2.141.0.tar.gz
-RUN mkdir vsts-agent
-RUN tar xzf vsts-agent-linux-arm-2.141.0.tar.gz -C ./vsts-agent
+# See https://github.com/Microsoft/azure-pipelines-agent/releases
+RUN curl 'https://vstsagentpackage.azureedge.net/agent/'$VSTS_AGENT_VERSION'/vsts-agent-linux-x64-'$VSTS_AGENT_VERSION'.tar.gz' -o vsts-agent.tar.gz \
+    && mkdir vsts-agent \
+    && tar xzf vsts-agent.tar.gz -C ./vsts-agent \
+    && rm vsts-agent.tar.gz
  
 # install node
-RUN curl -sL https://deb.nodesource.com/setup_8.x
-RUN apt-get install -y nodejs
+RUN curl -sL https://deb.nodesource.com/setup_8.x \
+    && apt-get install -y nodejs
 
 COPY vsts.sh .
 
